@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>◈ HIMMEL · index.html</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow-x:hidden;background:#02060a;
+            color:#c8d8e8;font-family:Consolas,monospace;
+            font-size:12px;line-height:1.4}
+  canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .wrap{position:relative;z-index:10;display:flex;flex-direction:column;
+        min-height:100vh;padding:12px;gap:12px}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#1a2a3a;border-radius:3px}
+
+  /* TOPBAR */
+  .top{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;
+       align-items:center;gap:10px;padding:8px 12px;
+       border:1px solid #1a2a3a;border-radius:6px;
+       background:rgba(4,10,20,.94);backdrop-filter:blur(12px)}
+  .top .logo{color:#ff8a2a;font-weight:700;letter-spacing:3px}
+  .top .sep{width:1px;height:14px;background:#1a2a3a}
+  .top .law{color:#5a7288;font-size:9px;letter-spacing:1.5px}
+  .top .law b{color:#7ce0a8;font-weight:700}
+  .top .right{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;
+              align-items:center}
+  .btn{padding:3px 9px;border-radius:3px;border:1px solid #1a2a3a;
+       background:#0a1420;color:#5a7288;font-family:inherit;
+       font-size:10px;letter-spacing:1px;cursor:pointer;
+       transition:all .15s}
+  .btn:hover{border-color:#5cf0ff;color:#5cf0ff}
+  .btn.on{background:rgba(255,138,42,.12);border-color:#ff8a2a;color:#ff8a2a}
+  .btn.gold{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.4);color:#ffd700}
+  .btn.gold:hover{border-color:#ffd700;color:#ffd700}
+  .btn.violet{background:rgba(179,136,255,.08);border-color:rgba(179,136,255,.4);color:#b388ff}
+  .btn.violet.on{background:rgba(179,136,255,.2);border-color:#b388ff}
+
+  /* MAIN GRID */
+  .main{display:grid;grid-template-columns:1fr 240px;gap:12px;
+        align-items:start}
+  @media(max-width:900px){.main{grid-template-columns:1fr}}
+
+  .panel{border:1px solid #1a2a3a;border-radius:6px;
+         background:rgba(4,10,20,.88);padding:12px;
+         backdrop-filter:blur(12px)}
+  .panel .hdr{display:flex;justify-content:space-between;
+              font-size:9px;letter-spacing:2px;color:#3a4a5a;
+              margin-bottom:8px}
+
+  /* PYRAMIDE */
+  .pyr{display:flex;flex-direction:column;gap:6px;padding:8px 0}
+  .lvl{display:flex;align-items:center;gap:8px}
+  .lvl .tf{width:18px;text-align:center;font-size:14px;font-weight:700;
+           line-height:1}
+  .lvl .tf.ok{color:#7ce0a8}
+  .lvl .tf.bad{color:#ff5a7a}
+  .lvl .bar{height:44px;display:flex;align-items:center;
+            justify-content:space-between;padding:0 10px;
+            border-radius:3px;border:1px solid;
+            cursor:pointer;transition:all .15s;
+            position:relative;overflow:hidden}
+  .lvl .bar:hover{filter:brightness(1.15)}
+  .lvl .bar .nm{display:flex;align-items:center;gap:8px;
+                font-size:11px;font-weight:700;letter-spacing:1px}
+  .lvl .bar .nm .rom{font-size:8px;color:#b388ff;letter-spacing:1px}
+  .lvl .bar .nm .r{font-size:9px;font-weight:400}
+  .lvl .bar .nm .r.ok{color:#7ce0a8}
+  .lvl .bar .nm .r.bad{color:#ff5a7a}
+  .lvl .bar .fx{display:flex;align-items:center;gap:8px;font-size:9px}
+  .lvl .bar .fx .w{color:#5a7288}
+  .lvl .bar .fx .p{color:#b388ff}
+  .lvl .bar .fx .n{color:#3a4a5a}
+  .lvl .side{width:92px;text-align:right;font-size:9px;
+             line-height:1.15;color:#5a7288}
+  .lvl .side .sym{color:#c8d8e8;font-weight:700}
+  .lvl .side .pct{color:#5a7288}
+  .lvl .side .trag{color:#b388ff}
+
+  /* KOMPASS */
+  .kompass{position:relative;width:100%;aspect-ratio:1;
+           max-width:200px;margin:0 auto}
+  .kompass .ring{position:absolute;border-radius:50%;
+                 border:1px solid rgba(26,42,58,.6)}
+  .kompass .r1{inset:0}
+  .kompass .r2{inset:22%;border-style:dashed;border-color:rgba(26,42,58,.4)}
+  .kompass .r3{inset:45%;border-color:rgba(26,42,58,.3)}
+  .kompass svg{position:absolute;inset:0;width:100%;height:100%}
+  .kompass .center{position:absolute;left:50%;top:50%;
+                   width:6px;height:6px;margin:-3px 0 0 -3px;
+                   border-radius:50%;background:#c8d8e8}
+  .kompass .dir{position:absolute;width:22px;height:22px;
+                margin:-11px 0 0 -11px;border-radius:50%;
+                border:1px solid;display:flex;align-items:center;
+                justify-content:center;font-size:11px;font-weight:700;
+                transition:all .2s}
+  .kompass .dir.on{border-color:rgba(179,136,255,.6);
+                   background:rgba(179,136,255,.12);color:#c8d8e8}
+  .kompass .dir.off{border-color:#1a2a3a;background:rgba(10,20,32,.8);
+                    color:#3a4a5a;opacity:.4}
+  .kompass .spitze{position:absolute;left:50%;top:12%;
+                   transform:translateX(-50%);font-size:10px;
+                   font-weight:700;color:#ffd700}
+
+  /* TRAG */
+  .trag{display:flex;flex-direction:column;gap:3px;font-size:9px}
+  .trag .row{display:grid;grid-template-columns:30px 30px 1fr 30px 20px;
+             gap:6px;align-items:center;padding:2px 0;
+             border-bottom:1px solid rgba(140,180,220,.04)}
+  .trag .row .i{color:#3a4a5a}
+  .trag .row .s{color:#c8d8e8;font-weight:700}
+  .trag .row .w{color:#5a7288;text-align:right;font-family:Consolas,monospace}
+  .trag .row .t{color:#b388ff;text-align:right}
+  .trag .row .v{text-align:right;font-weight:700}
+  .trag .row .v.ok{color:#7ce0a8}
+  .trag .row .v.bad{color:#ff5a7a}
+
+  /* CHAIN */
+  .chain{margin-top:12px}
+  .chain .tbl{overflow-x:auto}
+  .chain .tbl>div{min-width:640px}
+  .chain .hdrow,.chain .row{
+    display:grid;
+    grid-template-columns:34px 12px 68px 70px 70px 40px 40px 60px;
+    gap:8px;align-items:center;padding:2px 0;font-size:10px;
+    border-bottom:1px solid rgba(140,180,220,.04)
+  }
+  .chain .hdrow{font-size:8px;letter-spacing:1px;color:#3a4a5a;
+                border-bottom:1px solid rgba(26,42,58,.6);padding-bottom:4px}
+  .chain .row.op0{background:rgba(124,224,168,.03)}
+  .chain .row.bad{opacity:.5}
+  .chain .row .i{color:#3a4a5a;font-size:9px}
+  .chain .row .op{color:#3a4a5a}
+  .chain .row .sym{display:flex;align-items:center;gap:6px}
+  .chain .row .sym b{color:#c8d8e8}
+  .chain .row .sym .rom{font-size:8px;color:#b388ff}
+  .chain .row .num{color:#5a7288;text-align:right}
+  .chain .row .trag{color:#b388ff;text-align:right}
+  .chain .row .tf{text-align:right;font-weight:700}
+  .chain .row .tf.ok{color:#7ce0a8}
+  .chain .row .tf.bad{color:#ff5a7a}
+  .chain .master{margin-top:10px;padding-top:8px;
+                 border-top:1px solid #1a2a3a;text-align:center;
+                 font-size:11px;font-weight:700;letter-spacing:2px}
+  .chain .master.ok{color:#7ce0a8;
+                    text-shadow:0 0 12px rgba(124,224,168,.5)}
+  .chain .master.bad{color:#ff5a7a;
+                     text-shadow:0 0 12px rgba(255,90,122,.5)}
+  .chain .master small{display:block;margin-top:4px;font-size:9px;
+                       font-weight:400;letter-spacing:1px;color:#5a7288}
+  .legend{margin-top:8px;font-size:8px;letter-spacing:1px;color:#3a4a5a;
+          display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="wrap">
+
+  <!-- TOP -->
+  <div class="top">
+    <span class="logo">◈ HIMMEL</span>
+    <span class="sep"></span>
+    <span class="law">breite(i,n) = <b>(n−i)/n</b></span>
+    <span class="sep"></span>
+    <span class="law">trag = <b>n−i</b></span>
+    <span class="sep"></span>
+    <span class="law">L(i) = L(i−1) <b>∧</b> R(i)</span>
+
+    <div class="right">
+      <span class="law">N</span>
+      <span id="ns"></span>
+      <span class="sep"></span>
+      <button class="btn gold" id="add">+ EBENE</button>
+      <button class="btn violet" id="rom">ROM⊃ROM</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- PYRAMIDE -->
+    <div class="panel">
+      <div class="hdr">
+        <span id="pyr-hd">· → ▲ · N=0 · i=0..0</span>
+        <span id="pyr-v">⊤ · R(i)∈{⊤,⊥}</span>
+      </div>
+      <div class="pyr" id="pyr"></div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,#1a2a3a,transparent);margin:8px 0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:#3a4a5a;letter-spacing:1px">
+        <span>bottom · widest · (n−0)/n = 1</span>
+        <span>top · narrowest · 1/n</span>
+      </div>
+    </div>
+
+    <!-- RECHTS -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- KOMPASS -->
+      <div class="panel">
+        <div class="hdr"><span>KOMPASS</span><span>parent = ↺</span></div>
+        <div class="kompass" id="kompass">
+          <div class="ring r1"></div>
+          <div class="ring r2"></div>
+          <div class="ring r3"></div>
+          <svg viewBox="0 0 100 100" id="kompass-svg"></svg>
+          <div class="center"></div>
+          <div class="spitze">▲</div>
+          <div id="kompass-dirs"></div>
+        </div>
+        <div style="margin-top:10px;font-size:8px;color:#3a4a5a;line-height:1.6">
+          · ROOT · ↑ QI · ↗ EVO · → RAW · ↘ TMP<br>
+          ↓ CORE · ↙ NC · ← LOOP · ↖ AXIS · ▲ SPITZE<br>
+          <span style="color:#5a7288">parent(x) = die Richtung davor</span>
+        </div>
+      </div>
+
+      <!-- TRAG -->
+      <div class="panel">
+        <div class="hdr"><span>TRAG · BREITE</span></div>
+        <div class="trag" id="trag"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHAIN -->
+  <div class="panel chain">
+    <div class="hdr">
+      <span id="chain-hd">KETTE · L(i)=L(i−1)∧R(i) · 0 EBENEN</span>
+      <span>dist=i · breite=(n−i)/n · trag=n−i</span>
+    </div>
+    <div class="tbl">
+      <div id="chain-tbl"></div>
+    </div>
+    <div class="legend">
+      <span>·=ROOT · ↑=QI · ↗=EVO · →=RAW · ↘=TMP · ↓=CORE · ↙=NC · ←=LOOP · ↖=AXIS · ▲=SPITZE</span>
+      <span style="margin-left:auto;color:#5a7288">click bar = toggle R(i) · ∧ monoton · breite=trag/n</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════
+   HIMMEL · index.html
+   8 richtungen · pyramid · chain · L(i)=L(i-1)∧R(i)
+   ═══════════════════════════════════════════════════════════════ */
+
+const DIRS = ["↑","↗","→","↘","↓","↙","←","↖"];
+const ROM = {"·":"ROOT","↑":"QI","↗":"EVO","→":"RAW","↘":"TMP",
+             "↓":"CORE","↙":"NC","←":"LOOP","↖":"AXIS","▲":"SPITZE"};
+
+// ── Zustand ─────────────────────────────────────────────────
+let N = 8;
+let levels = [];
+let romMode = false;
+
+function buildLevels(n){
+  const out = [];
+  for(let i=0;i<n;i++){
+    let sym;
+    if(i === 0) sym = "·";
+    else if(i === n-1) sym = "▲";
+    else sym = DIRS[(i-1) % DIRS.length];
+    out.push({
+      id: i,
+      sym,
+      r: i===0 ? true : Math.random() < 0.75,
+      rom: ROM[sym] || sym,
+    });
+  }
+  if(out[0]) out[0].r = true;
+  return out;
+}
+
+function computeL(){
+  const L = [];
+  for(let i=0;i<levels.length;i++){
+    if(i===0) L[i] = true;
+    else L[i] = L[i-1] && levels[i].r;
+  }
+  return L;
+}
+
+// ── UI-Bau ──────────────────────────────────────────────────
+const pyrEl = document.getElementById('pyr');
+const tragEl = document.getElementById('trag');
+const chainTbl = document.getElementById('chain-tbl');
+const pyrHd = document.getElementById('pyr-hd');
+const pyrV = document.getElementById('pyr-v');
+const chainHd = document.getElementById('chain-hd');
+const nsEl = document.getElementById('ns');
+
+function buildNs(){
+  nsEl.innerHTML = '';
+  [3,6,8,9,81].forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'btn' + (N===n ? ' on' : '');
+    b.textContent = n;
+    b.onclick = () => {
+      N = n;
+      levels = buildLevels(n);
+      render();
+    };
+    nsEl.appendChild(b);
+  });
+}
+
+function hsv(i,n){
+  const t = n === 1 ? 0 : i/(n-1);
+  const hue = 210 + t*201;
+  return `hsl(${hue|0}, 70%, 65%)`;
+}
+
+function hex(i,n){
+  const t = n === 1 ? 0 : i/(n-1);
+  const r = Math.round(42 + (255-42)*t);
+  const g = Math.round(54 + (215-54)*t);
+  const b = Math.round(68 + (0-68)*t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function renderPyramide(L){
+  const n = levels.length;
+  pyrHd.textContent = `· → ▲ · N=${n} · i=0..${n-1}`;
+  pyrV.textContent = `${L.every(x=>x) ? '⊤' : '⊥'} · ${romMode?'ROM⊃ROM':'R(i)∈{⊤,⊥}'}`;
+
+  pyrEl.innerHTML = '';
+  [...levels].reverse().forEach(lvl => {
+    const i = lvl.id;
+    const w = (n-i)/n;
+    const trag = n-i;
+    const ok = L[i];
+    const col = hex(i,n);
+
+    const row = document.createElement('div');
+    row.className = 'lvl';
+    row.innerHTML = `
+      <span class="tf ${ok?'ok':'bad'}">${ok?'⊤':'⊥'}</span>
+      <button class="bar" style="
+        width:${w*88}%;
+        background:${ok? col.replace('rgb','rgba').replace(')',',0.18)'):'rgba(42,26,26,.5)'};
+        border-color:${ok?col:'#5a2a2a'};
+        box-shadow:${ok?`0 0 12px ${col.replace('rgb','rgba').replace(')',',0.18)')}`:'none'};
+      ">
+        <span class="nm" style="color:${ok?col:'#5a2a2a'}">
+          ${lvl.sym}
+          <span style="color:#5a7288;font-weight:400;font-size:10px">L${i}</span>
+          ${romMode?`<span class="rom">⊃ ${lvl.rom}</span>`:''}
+          <span class="r ${lvl.r?'ok':'bad'}">R:${lvl.r?'⊤':'⊥'}</span>
+        </span>
+        <span class="fx">
+          <span class="w">(${n}−${i})/${n}</span>
+          <span class="p">↦${trag}</span>
+          <span class="n">${w.toFixed(4)}</span>
+        </span>
+      </button>
+      <span class="side">
+        <span class="sym">${lvl.sym}</span> · <span class="pct">${(w*100).toFixed(2)}%</span><br>
+        <span class="trag">trägt ${trag}</span>
+      </span>
+    `;
+    row.querySelector('.bar').onclick = () => {
+      if(i === 0) return;
+      lvl.r = !lvl.r;
+      render();
+    };
+    pyrEl.appendChild(row);
+  });
+}
+
+function renderTrag(L){
+  tragEl.innerHTML = '';
+  levels.forEach(lvl => {
+    const i = lvl.id;
+    const w = (levels.length-i)/levels.length;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <span class="i">L${i}</span>
+      <span class="s">${lvl.sym}</span>
+      <span class="w">${w.toFixed(3)}</span>
+      <span class="t">${levels.length-i}</span>
+      <span class="v ${L[i]?'ok':'bad'}">${L[i]?'⊤':'⊥'}</span>
+    `;
+    tragEl.appendChild(row);
+  });
+}
+
+function renderKompass(L){
+  // SVG spokes
+  const svg = document.getElementById('kompass-svg');
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  // spokes
+  for(let i=0;i<8;i++){
+    const a = (i*45-90) * Math.PI/180;
+    const x2 = 50 + Math.cos(a)*48;
+    const y2 = 50 + Math.sin(a)*48;
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1','50'); l.setAttribute('y1','50');
+    l.setAttribute('x2',x2);   l.setAttribute('y2',y2);
+    l.setAttribute('stroke','rgba(90,114,136,.18)');
+    l.setAttribute('stroke-width','.6');
+    svg.appendChild(l);
+  }
+  // path
+  if(levels.length > 1){
+    const ang = {"·":-1,"↑":0,"↗":45,"→":90,"↘":135,"↓":180,"↙":225,"←":270,"↖":315,"▲":0};
+    let d = '';
+    for(let i=0;i<levels.length;i++){
+      const s = levels[i].sym;
+      const a = ang[s] ?? 0;
+      if(s==='·' || s==='▲'){ d += ' L 50 50'; continue; }
+      const rad = (a-90) * Math.PI/180;
+      const x = 50 + Math.cos(rad)*32;
+      const y = 50 + Math.sin(rad)*32;
+      if(d==='') d = `M ${x} ${y}`;
+      else d += ` L ${x} ${y}`;
+    }
+    const p = document.createElementNS(NS,'path');
+    p.setAttribute('d', d);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke','rgba(255,215,0,.35)');
+    p.setAttribute('stroke-width','.8');
+    p.setAttribute('stroke-dasharray','2 2');
+    svg.appendChild(p);
+  }
+  // dirs
+  const dirs = document.getElementById('kompass-dirs');
+  dirs.innerHTML = '';
+  DIRS.forEach((sym, idx) => {
+    const a = (idx*45-90) * Math.PI/180;
+    const x = 50 + Math.cos(a)*36;
+    const y = 50 + Math.sin(a)*36;
+    const lvl = levels.find(l => l.sym === sym);
+    const ok = lvl ? L[lvl.id] : true;
+    const el = document.createElement('div');
+    el.className = 'dir ' + (ok ? 'on' : 'off');
+    el.style.left = x + '%';
+    el.style.top  = y + '%';
+    el.textContent = sym;
+    el.title = `${sym} = ${ROM[sym]} · ${lvl ? (L[lvl.id]?'⊤':'⊥') : '∅'}`;
+    dirs.appendChild(el);
+  });
+}
+
+function renderChain(L){
+  const n = levels.length;
+  chainHd.textContent = `KETTE · L(i)=L(i−1)∧R(i) · ${n} EBENEN`;
+
+  let show;
+  if(n <= 16) show = levels.map(l => l.id);
+  else show = [...Array(8).keys(), -1, n-2, n-1];
+
+  let html = '';
+  html += `<div class="hdrow">
+    <span>i</span><span>op</span><span>SYM</span>
+    <span>dist</span><span>breite</span><span>trag</span>
+    <span>R(i)</span><span>L(i)</span>
+  </div>`;
+
+  for(const idx of show){
+    if(idx === -1){
+      html += `<div class="row">
+        <span class="i">···</span><span></span>
+        <span style="color:#3a4a5a">${n-10} weitere</span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>`;
+      continue;
+    }
+    const lvl = levels[idx];
+    const w = (n-idx)/n;
+    const trag = n-idx;
+    const op = idx === 0 ? '·' : (idx === n-1 ? '=' : '∧');
+    const ok = L[idx];
+    html += `<div class="row ${ok?'':'bad'}">
+      <span class="i">L${String(idx).padStart(2,'0')}</span>
+      <span class="op">${op}</span>
+      <span class="sym"><b>${lvl.sym}</b>${romMode?`<span class="rom">${lvl.rom}</span>`:''}</span>
+      <span class="num">${idx}</span>
+      <span class="num">${w.toFixed(4)}</span>
+      <span class="trag">${trag}</span>
+      <span class="tf ${lvl.r?'ok':'bad'}">${lvl.r?'⊤':'⊥'}</span>
+      <span class="tf ${ok?'ok':'bad'}">${ok?'⊤':'⊥'}</span>
+    </div>`;
+  }
+
+  const all = L.every(x => x);
+  html += `<div class="master ${all?'ok':'bad'}">
+    ${L.map(v => v?'⊤':'⊥').join(' ∧ ')} = ${all?'⊤ LOGISCH':'⊥ BRUCH'}
+    <small>${levels.map(l => l.sym).join('→')}</small>
+  </div>`;
+
+  chainTbl.innerHTML = html;
+}
+
+function render(){
+  const L = computeL();
+  renderPyramide(L);
+  renderTrag(L);
+  renderKompass(L);
+  renderChain(L);
+  buildNs();
+}
+
+// ── Canvas Hintergrund ──────────────────────────────────────
+const c = document.getElementById('c');
+const ctx = c.getContext('2d', {alpha:false});
+
+function drawBg(){
+  const DPR = Math.min(devicePixelRatio||1, 1.5);
+  const W = innerWidth, H = innerHeight;
+  c.width = W*DPR; c.height = H*DPR;
+  c.style.width = W+'px'; c.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+
+  ctx.fillStyle = '#02060a';
+  ctx.fillRect(0,0,W,H);
+
+  const cx = W*0.5, cy = H*0.46;
+  const R  = Math.min(W,H)*0.42;
+
+  // horizontal lines
+  ctx.strokeStyle = 'rgba(140,180,220,.04)';
+  ctx.lineWidth = 1;
+  for(let i=-4;i<=4;i++){
+    if(i===0) continue;
+    const y = cy + i*(R/5);
+    ctx.beginPath();
+    ctx.moveTo(cx-R, y);
+    ctx.lineTo(cx+R, y);
+    ctx.stroke();
+  }
+
+  // spokes
+  for(let i=0;i<8;i++){
+    const a = i*Math.PI/4 - Math.PI/2;
+    const x = cx + Math.cos(a)*R*1.35;
+    const y = cy + Math.sin(a)*R*1.35;
+    const g = ctx.createLinearGradient(cx,cy,x,y);
+    g.addColorStop(0,'rgba(92,240,255,0)');
+    g.addColorStop(.15,'rgba(92,240,255,.06)');
+    g.addColorStop(1,'rgba(255,215,0,0)');
+    ctx.strokeStyle = g;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(x,y);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(90,114,136,.18)';
+    ctx.beginPath();
+    ctx.arc(x,y,1.2,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // center
+  ctx.fillStyle = 'rgba(200,216,232,.12)';
+  ctx.beginPath();
+  ctx.arc(cx,cy,2,0,Math.PI*2);
+  ctx.fill();
+
+  // dashed rings
+  ctx.strokeStyle = 'rgba(26,42,58,.6)';
+  ctx.setLineDash([3,5]);
+  for(let r = R*0.25; r < R; r += R*0.25){
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+}
+
+addEventListener('resize', drawBg);
+drawBg();
+
+// ── Buttons ─────────────────────────────────────────────────
+document.getElementById('add').onclick = () => {
+  const base = levels[levels.length-1];
+  const dir = DIRS[Math.floor(Math.random()*DIRS.length)];
+  const neu = [...levels];
+  neu.splice(neu.length-1, 0, {
+    id: 0, // wird neu vergeben
+    sym: dir,
+    r: Math.random() < 0.75,
+    rom: ROM[dir] || dir,
+  });
+  // re-id
+  neu.forEach((l,i) => l.id = i);
+  levels = neu;
+  N = levels.length;
+  render();
+};
+
+document.getElementById('rom').onclick = (e) => {
+  romMode = !romMode;
+  e.target.classList.toggle('on', romMode);
+  render();
+};
+
+// ── Init ────────────────────────────────────────────────────
+levels = buildLevels(N);
+render();
+</script>
+</body>
+</html>
