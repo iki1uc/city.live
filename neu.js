@@ -1,15 +1,19 @@
-// in neu.js — für NUTZRAUM OS wall Canvas + terrain.html
-const terrainImg = new Image();
-terrainImg.src = "./terrain-beach.jpg"; // dein Strand mit Tor aus dem Screenshot
-terrainImg.onload = () => {
-  // WW, WH aus resizeWall()
-  wctx.globalAlpha = 0.85;
-  wctx.drawImage(terrainImg, 0, 0, WW, WH);
+// terrain-beach.jpg als Canvas Background
+const img = new Image();
+img.src = "./terrain-beach.jpg";
+
+img.onload = () => {
+  // Cover wie CSS background-size: cover
+  const scale = Math.max(WW / img.width, WH / img.height);
+  const w = img.width * scale;
+  const h = img.height * scale;
+  const x = (WW - w) / 2;
+  const y = (WH - h) / 2;
+  wctx.globalAlpha = 0.35; // Beach leicht transparent über Sternen
+  wctx.drawImage(img, x, y, w, h);
   wctx.globalAlpha = 1;
-  // dann Sterne + 729 Sektoren drüber
-  renderStars();
-  render729Grid();
 };
-terrainImg.onerror = () => {
-  console.warn("terrain-beach.jpg nicht gefunden — fallback gradient");
+
+img.onerror = () => {
+  console.warn("terrain-beach.jpg nicht gefunden in city.live/");
 };
