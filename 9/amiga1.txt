@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ERN · AMIGA TXT GAME</title>
+<style>
+body{background:#000;color:#0f0;font-family:monospace;padding:20px;}
+pre{background:#111;padding:20px;border-left:4px solid #0f0;}
+h1,h2{color:#0f0;}
+a{color:#0f0;text-decoration:none;}
+</style>
+</head>
+
+<body>
+
+<h1>ERN · AMIGA TXT GAME</h1>
+<pre>
+Willkommen, Ridvan.
+
+Dies ist dein ERN-Universum.
+Ein TXT-Labyrinth.
+Ein AMIGA-Spiel.
+Ein Raumkörper.
+Ein Puzzle.
+Eine Pyramide.
+Ein Tetris.
+Eine Wirtschaft.
+Eine Börse.
+Eine Verwaltung.
+Ein Scanner.
+Ein Universum.
+
+Du kannst jetzt wählen:
+
+1 → [UNIVERSE](ca://s?q=ERN_UNIVERSE)
+2 → [LABYRINTH](ca://s?q=ERN_LABYRINTH)
+3 → [GAME](ca://s?q=ERN_GAME)
+
+ENTER YOUR PATH:
+</pre>
+
+</body>
+</html>
